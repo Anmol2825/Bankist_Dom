@@ -123,16 +123,71 @@ nav.addEventListener('mouseover', handleHover.bind(0.5));
 nav.addEventListener('mouseout', handleHover.bind(1));
 
 //Sticky Navigation
-const intialCoords = section1.getBoundingClientRect();
+// const intialCoords = section1.getBoundingClientRect();
 
-window.addEventListener('scroll', function (e) {
-  console.log(window.scrollY);
-  if (window.scrollY > intialCoords.top)
-    nav.classList.add('sticky')
+// window.addEventListener('scroll', function (e) {
+//   console.log(window.scrollY);
+//   if (window.scrollY > intialCoords.top)
+//     nav.classList.add('sticky')
+//   else
+//     nav.classList.remove('sticky')
+// })
+
+//Sticky Navigation: Intersection Observer API
+
+// const obsCallback = function (entries, observer) {
+//   entries.forEach(entry => {
+//     console.log(entry);
+//   })
+// };
+
+// const obsOptons = {
+//   root: null,
+//   threshold: [0, 0.2],
+// };
+
+// const observer = new IntersectionObserver(obsCallback, obsOptons);
+// observer.observe(section1);
+
+const header = document.querySelector('.header');
+const navHeight = nav.getBoundingClientRect().height;
+
+const stickyNav = function (entries) {
+  const [entry] = entries;
+  console.log(entry);
+  if (!entry.isIntersecting)
+    nav.classList.add('sticky');
   else
-    nav.classList.remove('sticky')
-})
+    nav.classList.remove('sticky');
+}
 
+const headerObserver = new IntersectionObserver(stickyNav, {
+  root: null,
+  threshold: 0,
+  rootMargin: `-${navHeight}px`,
+});
+headerObserver.observe(header);
+
+//Reveal sections
+const allSections = document.querySelectorAll('.section');
+
+const revealSection = function (entries, observer) {
+  const [entry] = entries;
+
+  if (!entry.isIntersecting) return;
+
+  entry.target.classList.remove('section--hidden');
+  observer.unobserver(entry.target);
+};
+
+const sectionObserver = new IntersectionObserver(revealSection, {
+  root: null,
+  threshold: 0.15,
+})
+allSections.forEach(function (section) {
+  sectionObserver.observe(section);
+  section.classList.add('section--hidden')
+});
 // const h1 = document.querySelector('h1');
 // h1.addEventListener('mouseenter', function (e) {
 //   alert('addEventListener: Great! You are reading the heading :D');
